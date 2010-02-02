@@ -1,0 +1,9 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+server="irc.freenode.net"
+port=6667
+nick="statusbot"
+password="password"
+channel="#wikimedia-status"
+
