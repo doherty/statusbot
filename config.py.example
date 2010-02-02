@@ -6,4 +6,4 @@ port=6667
 nick="statusbot"
 password="password"
 channel="#wikimedia-status"
-
+database="u_lifeguard_statusbot"
