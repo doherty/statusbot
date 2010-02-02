@@ -12,14 +12,10 @@ from ircbot import SingleServerIRCBot
 from irclib import nm_to_n
 
 #DB data
-#This file parsing is *not* safe
-dbfile=open(os.path.expanduser('~/.my.cnf'), 'r')
-li=[l.strip("\n") for l in dbfile.readlines()[1:]]
-dbfile.close() 
-SQLuser=li[0].split("=")[1].strip()
-SQLpassword=li[1].split("=")[1].strip().strip("\"")
-SQLhost=li[2].split("=")[1].strip().strip("\"")
-SQLdb=config.database
+SQLuser=config.dbuser
+SQLpassword=config.dbpass
+SQLhost=config.dbhost
+SQLdb=config.dbdb
 
 #common queries
 queries = {

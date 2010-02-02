@@ -2,8 +2,11 @@
 # -*- coding: utf-8 -*-
 
 server="irc.freenode.net"
-port=6667
+port=8001
 nick="statusbot"
-password="password"
+password="password for nickserv"
 channel="#wikimedia-status"
-database="u_lifeguard_statusbot"
+dbdb="u_lifeguard_statusbot"
+dbuser="lifeguard"
+dbhost="sql"
+dbpass="password *FOR MYSQL*"
