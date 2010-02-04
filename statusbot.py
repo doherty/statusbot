@@ -9,8 +9,6 @@ import config
 # Needs python-irclib
 from ircbot import SingleServerIRCBot
 from irclib import nm_to_n
-# Replaces getcloak(), which is inferior only in that it has no checking of input
-##from irclib import nm_to_h
 
 # DB data
 SQLuser=config.dbuser
@@ -223,6 +221,8 @@ class FreenodeBot(SingleServerIRCBot):
             
         #Status
         elif cmd.startswith("status"):
+            if cmd == "status":
+                cmd = "status list all" # default output
             self.do_status(re.sub("^status", "", cmd).strip(" "), target)
         
         #Service
@@ -239,15 +239,14 @@ class FreenodeBot(SingleServerIRCBot):
             
         #Huggle
         elif cmd.startswith("huggle"):
-            who=cmd[6:].strip(" ")
+            who=cmd[6:].strip(" ") # WTF?
             self.connection.action(self.channel, "huggles " + who)
             
         #Die
         elif cmd == "die":
             if self.channels[self.channel].is_oper(nick):
                 quitmsg = "Goodbye, cruel world!"
-                c.part(self.channel, "Process terminated.")
-                self.connection.part(self.channel, ":%s" % quitmsg)
+                c.part(self.channel, ":" + quitmsg)
                 if self.listen:
                     for chan in self.listen: self.connection.part(chan, ":" + quitmsg)
                 self.connection.quit(":" + quitmsg)
@@ -283,7 +282,7 @@ class FreenodeBot(SingleServerIRCBot):
                     if not self.quiet: self.msg("%s is already in the list of 'listen' channels!" % who, target)
                 else:
                     modquery('insert into listen values (0, "%s")' % channel)
-                    self.listenchannels = query(queries["listenchannels"]) # update the list of listenchannels channels
+                    self.listenchannels = query(queries["listenchannels"]) # update the list of listen channels
                     if not self.quiet:
                         self.msg("%s added to the list of 'listen' channels!" % channel, target)
                     self.connection.join(channel)
@@ -378,6 +377,8 @@ class FreenodeBot(SingleServerIRCBot):
             status=text.split(" ", 1)[1]
             if not service:
                 if not self.quiet: self.msg("You have to specify a service", target)
+            elif service == 'all clear':
+                self.do_status('ok all', target) # Don't duplicate code
             elif not status:
                 if not self.quiet: self.msg("You have to specify a status", target)
             else:
@@ -407,44 +408,53 @@ class FreenodeBot(SingleServerIRCBot):
         if cmd.startswith("list"):
             self.do_status("list all", target) # Don't duplicate code
         elif cmd.startswith("set"):
-            self.do_status("status %s" % cmd, target) # code re-use
+            self.do_status("status %s" % cmd, target) # Don't duplicate code
         elif cmd.startswith("add"):
             text=re.sub("^add", "", cmd).strip(" ")
             service=text.split(" ")[0]
             if not service:
-                if not self.quiet: self.msg("You have to specify a service", target)
+                if not self.quiet:
+                    self.msg("You have to specify a service", target)
             else:
                 if len(query('select s_service from status where s_service="%s"' % service))>0:
-                    if not self.quiet: self.msg("%s is already in the list of services!" % service, target)
+                    if not self.quiet:
+                        self.msg("%s is already in the list of services!" % service, target)
                 else:
                     modquery('insert into status values (0, "%s", "OK", true)' % service)
-                    if not self.quiet: self.msg("%s added to the list of services!" % service, target)
+                    if not self.quiet:
+                        self.msg("%s added to the list of services!" % service, target)
         elif self.startswitharray(cmd, ["remove", "delete"]):
             text=re.sub("^(remove|delete)", "", cmd).strip(" ")
             service=text.split(" ")[0]
             if not service:
-                if not self.quiet: self.msg("You have to specify a service", target)
+                if not self.quiet:
+                    self.msg("You have to specify a service", target)
             else:
                 if len(query('select s_service from status where s_service="%s"' % service))==0:
-                    if not self.quiet: self.msg("%s is not in the list of services!" % service, target)
+                    if not self.quiet:
+                        self.msg("%s is not in the list of services!" % service, target)
                 else:
                     modquery('delete from status where s_service="%s"' % service)
-                    if not self.quiet: self.msg("%s removed from the list of services!" % service, target)
+                    if not self.quiet:
+                        self.msg("%s removed from the list of services!" % service, target)
         elif self.startswitharray(cmd, ["change", "edit", "modify", "rename"]):
             text=re.sub("^(change|edit|modify|rename)", "", cmd).strip(" ")
             services = text.split(" ")
             if len(services) < 2:
-                if not self.quiet: self.msg("You have to specify two names", target)
+                if not self.quiet:
+                    self.msg("You have to specify two names", target)
             elif len(services)==2:
                 s1 = services[0]
                 s2 = services[1]
                 if len(query('select s_service from status where s_service="%s"' % s1))==0:
-                    if not self.quiet: self.msg("%s is not in the list of services!" % s1, target)
+                    if not self.quiet:
+                        self.msg("%s is not in the list of services!" % s1, target)
                 else:
                     modquery('update status set s_service="%s" where s_service="%s"' % (s2, s1))
-                    if not self.quiet: self.msg("Changed the name of service '%s' to '%s'" % (s1, s2), target)
+                    if not self.quiet:
+                        self.msg("Changed the name of service '%s' to '%s'" % (s1, s2), target)
             else:
-                pass # WTF?
+                raise CommanderError('too many parameters (%s)' % cmd)
         else:
             raise CommanderError('unparseable command (%s)' % cmd)
     
@@ -487,7 +497,7 @@ if __name__ == "__main__":
     except IOError:
         print "No config file! You should start this script from its directory like 'python statusbot.py'"
     except:
-        raise
+        raise # re-raise the last exception that brought us here.
         bot.die()
         sys.exit()
 
