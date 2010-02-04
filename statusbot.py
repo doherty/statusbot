@@ -141,7 +141,7 @@ class FreenodeBot(SingleServerIRCBot):
                         self.do_command(e, command, target)
                     except CommanderError, e:
                         print 'CommanderError: %s' % e.value
-                        #self.msg('\x0305Error:\x0F %s. See \x0302%s\x0F for the proper syntax' % (e.value, self.docurl), nick)
+                        self.msg('\x0305Error:\x0F %s. See \x0302%s\x0F for the proper syntax' % (e.value, self.docurl), nick)
                     except:
                         print 'Error: %s' % sys.exc_info()[1]
                         self.msg('Unknown internal error: %s' % sys.exc_info()[1], target)
