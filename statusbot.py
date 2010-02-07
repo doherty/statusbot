@@ -252,7 +252,7 @@ class FreenodeBot(SingleServerIRCBot):
                     quitmsg = text
                 c.part(self.channel, ":" + quitmsg)
                 if self.listen:
-                    for chan in self.listen: self.connection.part(chan, ":" + quitmsg)
+                    for chan in self.listenchannels: self.connection.part(chan, ":" + quitmsg)
                 self.connection.quit(":" + quitmsg)
                 self.disconnect()
                 c.quit()
