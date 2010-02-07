@@ -243,9 +243,13 @@ class FreenodeBot(SingleServerIRCBot):
             self.connection.action(self.channel, "huggles " + who)
             
         #Die
-        elif cmd == "die":
+        elif cmd.startswith("die"):
             if self.channels[self.channel].is_oper(nick):
-                quitmsg = "Goodbye, cruel world!"
+                text = cmd.split("die", 1)[1].strip(" ")
+                if not text:
+                    quitmsg = "Goodbye, cruel world!"
+                else:
+                    quitmsg = text
                 c.part(self.channel, ":" + quitmsg)
                 if self.listen:
                     for chan in self.listen: self.connection.part(chan, ":" + quitmsg)
