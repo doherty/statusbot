@@ -155,16 +155,16 @@ class FreenodeBot(SingleServerIRCBot):
         else:
             # If it's a message we care about!
             # Pretty this up!
-            if a[0].lower().startswith("!log"):
+            if self.startswitharray(a[0].lower(), ["!log", "!status"]):
                 channel = e.target()
                 if channel != self.channel:
                     nick = nm_to_n(e.source())
-                    text = a[0].split("!log", 1)[1].strip(" ")
+                    text = re.sub("^(!log|!status)", "", a[0]).strip(" ")
                     if nick == 'logmsgbot': # Make it clearer who did what
                         nick = text.split(" ", 1)[0]
                         text = text.split(" ", 1)[1]
-                    print '[%s] <%s/%s> %s' % (timestamp, e.target(), nick, text)
-                    out = "\x0303<%s/%s>\x0F %s" % (channel, nick, text)
+                    print '[%s] <%s/%s> %s' % (timestamp, channel, nick, text)
+                    out = "\x0303<%s>\x0F %s" % (nick, text)
                     self.msg(out, self.channel) # Always send !log echoes to the main channel
                 else:
                     pass # Someone is probably thinking they're very clever
