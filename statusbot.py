@@ -116,8 +116,7 @@ class FreenodeBot(SingleServerIRCBot):
                         self.msg('\x0305Error:\x0F %s. See \x0302%s\x0F for the proper syntax' % (e.value, self.docurl), nick)
                     except:
                         print 'Error: %s' % sys.exc_info()[1]
-                        self.msg('Unknown internal error: %s' % sys.exc_info()[1], target)
-                        raise
+                        raise # Re-raise the last exception
                 elif command == 'test': # Safe-ish to let them do this
                     self.do_command(e, command, target)
                 elif command == 'help': # Safe-ish to let them do this
@@ -155,14 +154,14 @@ class FreenodeBot(SingleServerIRCBot):
         else:
             # If it's a message we care about!
             # Pretty this up!
-            if self.startswitharray(a[0].lower(), ["!log", "!status"]):
+            if self.startswitharray(text.lower(), ["!log", "!status"]):
                 channel = e.target()
                 if channel != self.channel:
                     nick = nm_to_n(e.source())
-                    text = re.sub("^(!log|!status)", "", a[0]).strip(" ")
+                    text = re.sub("^(!log|!status)", "", text).strip()
                     if nick == 'logmsgbot': # Make it clearer who did what
-                        nick = text.split(" ", 1)[0]
-                        text = text.split(" ", 1)[1]
+                        nick = text.split(" ", 1)[0].strip()
+                        text = text.split(" ", 1)[1].strip()
                     print '[%s] <%s/%s> %s' % (timestamp, channel, nick, text)
                     out = "\x0303<%s>\x0F %s" % (nick, text)
                     self.msg(out, self.channel) # Always send !log echoes to the main channel
@@ -217,17 +216,17 @@ class FreenodeBot(SingleServerIRCBot):
                 
         #Listen
         elif cmd.startswith("listen"):
-            self.do_listen(re.sub("^listen", "", cmd).strip(" "), target, nick) # This one needs nick to avoid passing e
+            self.do_listen(re.sub("^listen", "", cmd).strip(), target, nick) # This one needs nick to avoid passing e
             
         #Status
         elif cmd.startswith("status"):
             if cmd == "status":
                 cmd = "status list all" # default output
-            self.do_status(re.sub("^status", "", cmd).strip(" "), target)
+            self.do_status(re.sub("^status", "", cmd).strip(), target)
         
         #Service
         elif cmd.startswith("service"):
-            self.do_service(re.sub("^service", "", cmd).strip(" "), target)
+            self.do_service(re.sub("^service", "", cmd).strip(), target)
 
         #Help
         elif cmd == "help":
@@ -239,13 +238,13 @@ class FreenodeBot(SingleServerIRCBot):
             
         #Huggle
         elif cmd.startswith("huggle"):
-            who=cmd[6:].strip(" ") # WTF?
+            who=cmd[6:].strip() # WTF?
             self.connection.action(self.channel, "huggles " + who)
             
         #Die
         elif cmd.startswith("die"):
             if self.channels[self.channel].is_oper(nick):
-                text = cmd.split("die", 1)[1].strip(" ")
+                text = cmd.split("die", 1)[1].strip()
                 if not text:
                     quitmsg = "Goodbye, cruel world!"
                 else:
@@ -264,7 +263,7 @@ class FreenodeBot(SingleServerIRCBot):
                 # attempt at an outer level.
                 sys.exit()
             else:
-                if not self.quiet: self.msg("You can't kill me; you're not opped.")
+                if not self.quiet: self.msg("You can't kill me; you're not opped in %s" % self.channel, target)
                 
         #Other
         elif not self.quiet:
@@ -275,7 +274,7 @@ class FreenodeBot(SingleServerIRCBot):
             listenchannels = query(queries["listenchannels"])
             self.msg("'listen' channels: "+", ".join(listenchannels), target)
         elif cmd.startswith("add"):
-            text=re.sub("^add", "", cmd).strip(" ")
+            text=re.sub("^add", "", cmd).strip()
             channel=text.split(" ")[0]
             if not channel:
                 if not self.quiet: self.msg("You have to specify a channel", target)
@@ -291,7 +290,7 @@ class FreenodeBot(SingleServerIRCBot):
                         self.msg("%s added to the list of 'listen' channels!" % channel, target)
                     self.connection.join(channel)
         elif self.startswitharray(cmd, ["remove", "delete"]):
-            text=re.sub("^(remove|delete)", "", cmd).strip(" ")
+            text=re.sub("^(remove|delete)", "", cmd).strip()
             channel=text.split(" ")[0]
             if not channel:
                 if not self.quiet:
@@ -309,7 +308,7 @@ class FreenodeBot(SingleServerIRCBot):
                         self.msg("%s removed from the list of 'listen' channels!" % channel, target)
                     self.connection.part(channel, "Requested by %s in %s" % (nick, self.channel))
         elif self.startswitharray(cmd, ["change", "edit", "modify", "rename"]):
-            text=re.sub("^(change|edit|modify|rename)", "", cmd).strip(" ")
+            text=re.sub("^(change|edit|modify|rename)", "", cmd).strip()
             channels = who.split(" ")
             if len(channels) < 2:
                 if not self.quiet:
@@ -350,7 +349,7 @@ class FreenodeBot(SingleServerIRCBot):
     
     def do_status(self, cmd, target):
         if cmd.startswith("list"):
-            text = re.sub("^list", "", cmd).strip(" ")
+            text = re.sub("^list", "", cmd).strip()
             which = text.split(" ", 1)[0]
             if not which or which == 'all':
                 statuses = query(queries["getstatuses"], False) # False lets us use more than one column
@@ -376,7 +375,7 @@ class FreenodeBot(SingleServerIRCBot):
                 #output everything on one line
                 self.msg("\x02Current status:\x0F %s" % " ¦ ".join(out1), target)
         elif cmd.startswith("set"):
-            text=re.sub("^set", "", cmd).strip(" ")
+            text=re.sub("^set", "", cmd).strip()
             service=text.split(" ", 1)[0]
             status=text.split(" ", 1)[1]
             if not service:
@@ -392,7 +391,7 @@ class FreenodeBot(SingleServerIRCBot):
                     modquery('update status set s_state="%s",s_ok=false where s_service="%s"' % (status, service))
                     if not self.quiet: self.msg("%s now has status '%s'" % (service, status), target)
         elif cmd.startswith("ok"):
-            text=re.sub("^ok", "", cmd).strip(" ")
+            text=re.sub("^ok", "", cmd).strip()
             service = text.split(" ", 1)[0]
             if not service:
                 if not self.quiet: self.msg("You have to specify a service", target)
@@ -414,7 +413,7 @@ class FreenodeBot(SingleServerIRCBot):
         elif cmd.startswith("set"):
             self.do_status("status %s" % cmd, target) # Don't duplicate code
         elif cmd.startswith("add"):
-            text=re.sub("^add", "", cmd).strip(" ")
+            text=re.sub("^add", "", cmd).strip()
             service=text.split(" ")[0]
             if not service:
                 if not self.quiet:
@@ -428,7 +427,7 @@ class FreenodeBot(SingleServerIRCBot):
                     if not self.quiet:
                         self.msg("%s added to the list of services!" % service, target)
         elif self.startswitharray(cmd, ["remove", "delete"]):
-            text=re.sub("^(remove|delete)", "", cmd).strip(" ")
+            text=re.sub("^(remove|delete)", "", cmd).strip()
             service=text.split(" ")[0]
             if not service:
                 if not self.quiet:
@@ -442,7 +441,7 @@ class FreenodeBot(SingleServerIRCBot):
                     if not self.quiet:
                         self.msg("%s removed from the list of services!" % service, target)
         elif self.startswitharray(cmd, ["change", "edit", "modify", "rename"]):
-            text=re.sub("^(change|edit|modify|rename)", "", cmd).strip(" ")
+            text=re.sub("^(change|edit|modify|rename)", "", cmd).strip()
             services = text.split(" ")
             if len(services) < 2:
                 if not self.quiet:
