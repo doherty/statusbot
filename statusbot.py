@@ -96,7 +96,8 @@ class FreenodeBot(SingleServerIRCBot):
         if e.arguments()[0] == "VERSION":
             c.ctcp_reply(nm_to_n(e.source()),"Bot for providing status information on %s" % self.channel)
         elif e.arguments()[0] == "PING":
-            if len(e.arguments()) > 1: c.ctcp_reply(nm_to_n(e.source()),"PING " + e.arguments()[1])
+            if len(e.arguments()) > 1:
+                c.ctcp_reply(nm_to_n(e.source()),"PING " + e.arguments()[1])
 
     def on_privmsg(self, c, e):
         timestamp = time.strftime('%d.%m.%Y %H:%M:%S', time.localtime(time.time()))
@@ -185,7 +186,8 @@ class FreenodeBot(SingleServerIRCBot):
     def do_command(self, e, cmd, target=None):
         print "do_command(self, e, %s, %s)" % (cmd, target)
         nick = nm_to_n(e.source())
-        if not target: target = self.channel
+        if not target:
+            target = self.channel
         c = self.connection
         
         #On/Off
@@ -251,19 +253,20 @@ class FreenodeBot(SingleServerIRCBot):
                     quitmsg = text
                 c.part(self.channel, ":" + quitmsg)
                 if self.listen:
-                    for chan in self.listenchannels: self.connection.part(chan, ":" + quitmsg)
+                    for chan in self.listenchannels:
+                        self.connection.part(chan, ":" + quitmsg)
                 self.connection.quit(":" + quitmsg)
                 self.disconnect()
                 c.quit()
                 self.disconnect()
-##                os._exit(os.EX_OK) # Really really kill - might not be necessary (no threading)
                 # Exit from Python. This is implemented by raising the SystemExit
                 # exception, so cleanup actions specified by finally clauses of try
                 # statements are honored, and it is possible to intercept the exit
                 # attempt at an outer level.
                 sys.exit()
             else:
-                if not self.quiet: self.msg("You can't kill me; you're not opped in %s" % self.channel, target)
+                if not self.quiet:
+                    self.msg("You can't kill me; you're not opped in %s" % self.channel, target)
                 
         #Other
         elif not self.quiet:
@@ -277,12 +280,14 @@ class FreenodeBot(SingleServerIRCBot):
             text=re.sub("^add", "", cmd).strip()
             channel=text.split(" ")[0]
             if not channel:
-                if not self.quiet: self.msg("You have to specify a channel", target)
+                if not self.quiet:
+                    self.msg("You have to specify a channel", target)
             else:
                 if not channel.startswith("#"):
                     channel = "#" + channel
                 if len(query('select l_channel from listen where l_channel="%s"' % channel))>0:
-                    if not self.quiet: self.msg("%s is already in the list of 'listen' channels!" % who, target)
+                    if not self.quiet:
+                        self.msg("%s is already in the list of 'listen' channels!" % who, target)
                 else:
                     modquery('insert into listen values (0, "%s")' % channel)
                     self.listenchannels = query(queries["listenchannels"]) # update the list of listen channels
@@ -379,31 +384,39 @@ class FreenodeBot(SingleServerIRCBot):
             service=text.split(" ", 1)[0]
             status=text.split(" ", 1)[1]
             if not service:
-                if not self.quiet: self.msg("You have to specify a service", target)
+                if not self.quiet:
+                    self.msg("You have to specify a service", target)
             elif service == 'all clear':
                 self.do_status('ok all', target) # Don't duplicate code
             elif not status:
-                if not self.quiet: self.msg("You have to specify a status", target)
+                if not self.quiet:
+                    self.msg("You have to specify a status", target)
             else:
                 if len(query('select s_service from status where s_service="%s"' % service))==0:
-                    if not self.quiet: self.msg("%s is not a listed service" % service, target)
+                    if not self.quiet:
+                        self.msg("%s is not a listed service" % service, target)
                 else:
                     modquery('update status set s_state="%s",s_ok=false where s_service="%s"' % (status, service))
-                    if not self.quiet: self.msg("%s now has status '%s'" % (service, status), target)
+                    if not self.quiet:
+                        self.msg("%s now has status '%s'" % (service, status), target)
         elif cmd.startswith("ok"):
             text=re.sub("^ok", "", cmd).strip()
             service = text.split(" ", 1)[0]
             if not service:
-                if not self.quiet: self.msg("You have to specify a service", target)
+                if not self.quiet:
+                    self.msg("You have to specify a service", target)
             else:
                 if service == 'all':
                     modquery(queries['setallclear'])
-                    if not self.quiet: self.msg("\x0303All clear!\x0F", target)
+                    if not self.quiet:
+                        self.msg("\x0303All clear!\x0F", target)
                 elif len(query('select s_service from status where s_service="%s"' % service))==0:
-                    if not self.quiet: self.msg("%s is not a known service" % service, target)
+                    if not self.quiet:
+                        self.msg("%s is not a known service" % service, target)
                 else:
                     modquery('update status set s_ok=true,s_status="OK" where s_service="%s"' % service)
-                    if not self.quiet: self.msg("Recorded %s as OK" % service, target)
+                    if not self.quiet:
+                        self.msg("Recorded %s as OK" % service, target)
         else:
             raise CommanderError('unparseable command (%s)' % cmd)
             
@@ -468,14 +481,16 @@ class FreenodeBot(SingleServerIRCBot):
         
     def startswitharray(self, a, l):
         for i in l:
-            if a.startswith(i): return True
+            if a.startswith(i):
+                return True
         return False
     
     def randmess(self):
         if self.dorandmess:
             a=int(random.random()*1000)
             b=int(random.random()*1000)
-            if a==b: self.msg(randmessage)
+            if a==b:
+                self.msg(randmessage)
 
 class StatusbotException(Exception):
     """A single base class for all other Statusbot exceptions."""
