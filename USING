@@ -1,0 +1,60 @@
+Using Statusbot
+===============
+
+Introduction
+------------
+
+**This IRC bot assists with the operation of
+[`#wikimedia-status`](wikimedia-status)**
+([direct link](irc://irc.freenode.net/wikimedia-status),
+[webchat](http://webchat.freenode.net/?channels=wikimedia-status)),
+an IRC channel *exclusively* for status updates about Wikimedia websites.
+
+It idles in several channels, with the aim of quickly disseminating 
+information about the status of Wikimedia and related websites (ie. the 
+toolserver) during outages.
+
+To do this, it performs several tasks:
+
+*   Echoes `/topic` changes in `#wikimedia-tech` and 
+    `#wikimedia-toolserver`.
+*   Echoes `!log` messages from those channels, which often contain
+    information about diagnosis or repair undertaken by sysadmins.
+
+Commands
+--------
+
+Commands may be issued by any voiced or opped user. Commands are 
+addressed to the bot, using it's nick:
+
+    statusbot: listen list
+
+<table style="font-size: 85%;">
+<tr>
+<th>Command</th>
+<th>Description</th>
+<th>Example</th>
+</tr>
+<tr>
+<td>statusbot: test</td>
+<td>Test if the bot is alive</td>
+<td><code>statusbot: test</code></td>
+</tr>
+<tr>
+<td>statusbot: listen list</td>
+<td>List the channels statusbot listens in</td>
+<td><code>statusbot: listen list</code></td>
+</tr>
+<tr>
+<td>statusbot: listen (add|remove) [#channel]</td>
+<td>Add or remove a channel statusbot listens in </td>
+<td><code>statusbot: listen add #wikimedia-tech</code></td>
+</tr>
+</table>
+
+### Restricted commands ###
+
+The `die` command is further restricted to ops.
+
+    statusbot: die
+    statusbot: die Here's a witty quitmsg
