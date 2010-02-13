@@ -9,6 +9,7 @@ import re, string
 import random, time
 import MySQLdb
 # The config file for this bot - must be located at ./config.py
+# Copy and customize config.py.example
 import config
 # Needs python-irclib
 from ircbot import SingleServerIRCBot
@@ -92,8 +93,7 @@ class FreenodeBot(SingleServerIRCBot):
     
     def on_nicknameinuse(self, c, e):
         """
-        Gets called when the server tells us our nick is
-        already in use.
+        Gets called when the server tells us our nick is already in use.
         """
         # Probably unnecessary, since sending a server password will
         # log us in regardless whether we have our main nick or not.
@@ -106,13 +106,13 @@ class FreenodeBot(SingleServerIRCBot):
 
     def on_welcome(self, c, e):
         """
-        Gets called when the server welcomes us after connection.
+        Gets called when the server welcomes us after successfully connecting.
         """
         print "Connected to server successfully"
-        c.privmsg("NickServ",'GHOST '+self.nickname+' '+self.password)
+        c.privmsg("NickServ",'GHOST %s %s' % (self.nickname, self.password))
         # Probably unnecessary, since sending a server password will
         # log us in regardless whether we have our main nick or not.
-        c.privmsg("NickServ",'IDENTIFY '+self.password)
+        c.privmsg("NickServ",'IDENTIFY %s' % self.password)
         time.sleep(5) # Let identification succeed before joining channels
         c.join(self.channel)
         if self.listen and self.listenchannels:
@@ -136,7 +136,7 @@ class FreenodeBot(SingleServerIRCBot):
 
     def on_privmsg(self, c, e):
         """
-        Gets called when a PM is received
+        Gets called when a PM is received.
         """
         timestamp = time.strftime('%d.%m.%Y %H:%M:%S', time.localtime(time.time()))
         nick = nm_to_n(e.source())
@@ -161,11 +161,11 @@ class FreenodeBot(SingleServerIRCBot):
                 elif command == 'help': # Safe-ish to let them do this
                     self.do_command(e, command, target)
                 else:
-                    self.msg('Sorry, you need to be voiced to give the bot commands.', nick)
+                    self.msg('Sorry, you need to be voiced in %s to give the bot commands.' % self.channel, nick)
 
     def on_pubmsg(self, c, e):
         """
-        Gets called when messages get said in the channel
+        Gets called when messages get said in any channel.
         """
         self.randmess() # Maybe we'll send a message, maybe we won't...
         timestamp = time.strftime('%d.%m.%Y %H:%M:%S', time.localtime(time.time()))
@@ -192,7 +192,7 @@ class FreenodeBot(SingleServerIRCBot):
                 elif command == 'help': # Safe-ish to let them do this
                     self.do_command(e, command, target)
                 else:
-                    self.msg('Sorry, you need to be voiced to give the bot commands.' , nick) # Let them know they need to be voiced
+                    self.msg('Sorry, you need to be voiced in %s to give the bot commands.' % self.channel, nick)
         else:
             # If it's a message we care about!
             # Pretty this up!
@@ -212,7 +212,7 @@ class FreenodeBot(SingleServerIRCBot):
 
     def on_topic(self, c, e):
         """
-        Gets called on /topic changes
+        Gets called on /topic changes.
         """
         timestamp = time.strftime('%d.%m.%Y %H:%M:%S', time.localtime(time.time()))
         nick = nm_to_n(e.source())
@@ -228,8 +228,7 @@ class FreenodeBot(SingleServerIRCBot):
         
     def do_command(self, e, cmd, target=None):
         """
-        Parse the given command, and send it off to
-        do_X for actual doing.
+        Parse the given command, and send it off to do_X for actual doing.
         """
         print "do_command(self, e, %s, %s)" % (cmd, target)
         nick = nm_to_n(e.source())
@@ -321,7 +320,7 @@ class FreenodeBot(SingleServerIRCBot):
 
     def do_listen(self, cmd, target, nick):
         """
-        Actually does the listen commands
+        Actually does the 'listen' commands.
         """
         if cmd.startswith("list"):
             listenchannels = query(queries["listenchannels"])
@@ -404,7 +403,7 @@ class FreenodeBot(SingleServerIRCBot):
     
     def do_status(self, cmd, target):
         """
-        Actually does the status commands
+        Actually does the 'status' commands.
         """
         if cmd.startswith("list"):
             text = re.sub("^list", "", cmd).strip()
@@ -475,7 +474,7 @@ class FreenodeBot(SingleServerIRCBot):
             
     def do_service(self, cmd, target):
         """
-        Actually does the 'service' commands
+        Actually does the 'service' commands.
         """
         if cmd.startswith("list"):
             self.do_status("list all", target) # Don't duplicate code
@@ -532,7 +531,9 @@ class FreenodeBot(SingleServerIRCBot):
     
     def msg(self, msg, target=None):
         """
-        Send a message to either a channel or by PM to a user
+        Send a message to either a channel or by PM to a user,
+        depending on what is provided as target (defaults to
+        self.channel.
         """
         if not target:
             target=self.channel
@@ -549,6 +550,10 @@ class FreenodeBot(SingleServerIRCBot):
         return False
     
     def randmess(self):
+        """
+        This might eventually send a message periodically. Or it
+        might be culled, rewritten, or abandoned at sea.
+        """
         if self.dorandmess:
             a=int(random.random()*1000)
             b=int(random.random()*1000)
@@ -557,13 +562,13 @@ class FreenodeBot(SingleServerIRCBot):
 
 class StatusbotException(Exception):
     """
-    A single base class for all other Statusbot exceptions.
+    A single base class for all other statusbot exceptions.
     """
     pass
     
 class CommanderError(StatusbotException):
     """
-    This exception is raised when the command can't be parsed
+    Raise this exception when the command can't be parsed.
     """
     def __init__(self,value):
         self.value=value
@@ -586,7 +591,7 @@ if __name__ == "__main__":
     try:
         main()
     except IOError:
-        print "No config file! You should start this script from its directory like 'python statusbot.py'"
+        print "No config file. You should start this script from its directory like 'python statusbot.py'"
     except:
         raise # re-raise the last exception that brought us here. Without it, this bare except would be evul.
         bot.die()

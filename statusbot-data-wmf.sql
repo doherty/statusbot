@@ -32,4 +32,3 @@ INSERT INTO `status` (`s_id`, `s_service`, `s_state`, `s_ok`) VALUES
 (7, 'irc.wikimedia.org', 'OK', 1),
 (8, 'wikis(squid-cache)', 'OK', 1),
 (9, 'misc.', 'OK', 1);
-
