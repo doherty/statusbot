@@ -119,10 +119,10 @@ class FreenodeBot(SingleServerIRCBot):
         # Probably unnecessary, since sending a server password will
         # log us in regardless whether we have our main nick or not.
         c.nick(c.get_nickname() + "_")
-        time.sleep(1) # latency problem?
+        time.sleep(2) # latency problem?
         c.privmsg("NickServ","GHOST %s %s" % (self.nickname, self.password))
         c.nick(self.nickname)
-        time.sleep(1) # latency problem?
+        time.sleep(2) # latency problem?
         c.privmsg("NickServ","IDENTIFY %s" % self.password)
 
     def on_welcome(self, c, e):
@@ -136,7 +136,7 @@ class FreenodeBot(SingleServerIRCBot):
         # Probably unnecessary, since sending a server password will
         # log us in regardless whether we have our main nick or not.
         c.privmsg("NickServ",'IDENTIFY %s' % self.password)
-        time.sleep(2) # Let identification succeed before joining channels
+        time.sleep(4) # Let identification succeed before joining channels
         c.join(self.channel)
         if self.listen and self.listenchannels:
             for chan in self.listenchannels:
