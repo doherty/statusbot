@@ -92,6 +92,7 @@ class FreenodeBot(SingleServerIRCBot):
         self.randmessage = config.randmessage
         self.listen = True
         self.docurl = config.docurl
+        self.proxynicks = config.proxynicks
         SingleServerIRCBot.__init__(
             self, [(self.server, self.port,
                     # We can overload this tuple to send a server password
@@ -261,7 +262,7 @@ class FreenodeBot(SingleServerIRCBot):
                 if channel != self.channel:
                     nick = nm_to_n(e.source())
                     text = re.sub("^(!log|!status)", "", text).strip()
-                    if nick == 'logmsgbot': # Make it clearer who did what
+                    if nick in self.proxynicks: # Make it clearer who did what
                         nick = text.split(" ", 1)[0].strip()
                         text = text.split(" ", 1)[1].strip()
                     print '[%s] <%s/%s> %s' % (timestamp, channel, nick, text)
