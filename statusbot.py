@@ -58,7 +58,7 @@ def query(sqlquery, one=True):
                 res2 += [i[0]]
         return res2
     else: return res
-        
+
 def modquery(sqlquery):
     """
     Run a query that commits to the database.
@@ -98,7 +98,7 @@ class FreenodeBot(SingleServerIRCBot):
                     # We can overload this tuple to send a server password
                     "%s:%s" % (self.nickname, self.password))],
             self.nickname, self.nickname)
-        
+
     def on_error(self, c, e):
         """
         Called when some kind of IRC error happens.
@@ -108,7 +108,7 @@ class FreenodeBot(SingleServerIRCBot):
         """
         print e.target()
         self.die()
-    
+
     def on_nicknameinuse(self, c, e):
         """
         Called when the server tells us our nick is already in use.
@@ -294,7 +294,7 @@ class FreenodeBot(SingleServerIRCBot):
             self.msg(out, self.channel)
         else:
             pass # That's self.channel's topic changing
-        
+
     def do_command(self, e, cmd, target=None):
         """
         Parse the given command, and send it off to do_X for actual doing.
@@ -308,7 +308,7 @@ class FreenodeBot(SingleServerIRCBot):
         if not target:
             target = self.channel
         c = self.connection
-        
+
         # On/Off
         if cmd == "quiet":
             if not self.quiet:
@@ -334,18 +334,18 @@ class FreenodeBot(SingleServerIRCBot):
             if self.randmess:
                 self.msg("Message notification off", target)
                 self.randmess=False
-                
+
         # Listen
         elif cmd.startswith("listen"):
             # This one needs nick to avoid passing e
             self.do_listen(re.sub("^listen", "", cmd).strip(), target, nick)
-            
+
         # Status
         elif cmd.startswith("status"):
             if cmd == "status":
                 cmd = "status list all" # default output
             self.do_status(re.sub("^status", "", cmd).strip(), target)
-        
+
         # Service
         elif cmd.startswith("service"):
             self.do_service(re.sub("^service", "", cmd).strip(), target)
@@ -353,17 +353,17 @@ class FreenodeBot(SingleServerIRCBot):
         # Help
         elif cmd == "help":
             self.msg("My documentation is \x0302%s\x0F" % self.docurl, nick)
-            
+
         # Test
         elif cmd == "test":
             self.msg("Yes, I'm alive. My documentation is \x0302%s\x0F"
                      % self.docurl, nick)
-            
+
         # Huggle
         elif cmd.startswith("huggle"):
             who = cmd[6:].strip() # WTF?
             self.connection.action(self.channel, "huggles %s" % who)
-            
+
         # Die
         elif cmd.startswith("die"):
             if self.channels[self.channel].is_oper(nick):
@@ -390,7 +390,7 @@ class FreenodeBot(SingleServerIRCBot):
                 if not self.quiet:
                     self.msg("You can't kill me; you're not opped in %s"
                              % self.channel, target)
-                
+
         # Other
         elif not self.quiet:
             raise CommanderError('unknown command (%s)' % cmd)
@@ -498,7 +498,7 @@ class FreenodeBot(SingleServerIRCBot):
                 self.listen = False
         else:
             CommanderError('unparseable command (%s)' % cmd)
-    
+
     def do_status(self, cmd, target):
         """
         Actually *do* the "status" commands.
@@ -583,7 +583,7 @@ class FreenodeBot(SingleServerIRCBot):
                         self.msg("Recorded %s as OK" % service, target)
         else:
             raise CommanderError('unparseable command (%s)' % cmd)
-            
+
     def do_service(self, cmd, target):
         """
         Actually *do* the "service" commands.
@@ -656,7 +656,7 @@ class FreenodeBot(SingleServerIRCBot):
                 raise CommanderError('too many parameters (%s)' % cmd)
         else:
             raise CommanderError('unparseable command (%s)' % cmd)
-    
+
     def msg(self, msg, target=None):
         """
         Send a message to either a channel or by PM to a user.
@@ -668,7 +668,7 @@ class FreenodeBot(SingleServerIRCBot):
         if not target:
             target = self.channel
         self.connection.privmsg(target, msg)
-        
+
     def startswitharray(self, a, l):
         """
         Determine if a string starts with any of the strings in a list.
@@ -681,7 +681,7 @@ class FreenodeBot(SingleServerIRCBot):
             if a.startswith(i):
                 return True
         return False
-    
+
     def randmess(self):
         """
         Determine pseudo-randomly whether to send a specified message.
@@ -702,7 +702,7 @@ class StatusbotException(Exception):
 
     """
     pass
-    
+
 class CommanderError(StatusbotException):
     """
     Raise this exception when the command can't be parsed.
