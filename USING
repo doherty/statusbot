@@ -4,7 +4,7 @@ Using Statusbot
 Introduction
 ------------
 
-**This IRC bot assists with the operation of
+**This IRC bot assists with the operation of 
 [`#wikimedia-status`](wikimedia-status)**
 ([direct link](irc://irc.freenode.net/wikimedia-status),
 [webchat](http://webchat.freenode.net/?channels=wikimedia-status)),
@@ -12,7 +12,7 @@ an IRC channel *exclusively* for status updates about Wikimedia websites.
 
 Statusbot is a simple python IRC bot which aims to achieve rapid
 dissemination of status information into a destination channel. That
-information can come from several source:
+information can come from several sources:
 
 1.  `/topic` changes in source channel(s)
 2.  `!log` messages in source channel(s)
@@ -26,7 +26,7 @@ information can come from several source:
 Commands
 --------
 
-Commands may be issued by any voiced or opped user. Commands are 
+Commands may be issued by any voiced or opped user. Commands are
 addressed to the bot, using it's nick:
 
     <Mike_lifeguard> statusbot: listen list
@@ -59,5 +59,5 @@ addressed to the bot, using it's nick:
 
 The `die` command is further restricted to ops.
 
-    statusbot: die
-    statusbot: die Here's a witty quitmsg
+    <Mike_lifeguard> statusbot: die
+    <Mike_lifeguard> statusbot: die Here's a witty quitmsg
