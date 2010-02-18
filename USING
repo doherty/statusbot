@@ -10,16 +10,18 @@ Introduction
 [webchat](http://webchat.freenode.net/?channels=wikimedia-status)),
 an IRC channel *exclusively* for status updates about Wikimedia websites.
 
-It idles in several channels, with the aim of quickly disseminating 
-information about the status of Wikimedia and related websites (ie. the 
-toolserver) during outages.
+Statusbot is a simple python IRC bot which aims to achieve rapid
+dissemination of status information into a destination channel. That
+information can come from several source:
 
-To do this, it performs several tasks:
-
-*   Echoes `/topic` changes in `#wikimedia-tech` and 
-    `#wikimedia-toolserver`.
-*   Echoes `!log` messages from those channels, which often contain
-    information about diagnosis or repair undertaken by sysadmins.
+1.  `/topic` changes in source channel(s)
+2.  `!log` messages in source channel(s)
+3.  `!status` messages in source channel(s) - this exists as an
+    alternative to `!log` so users may have statusbot repeat something
+    without it being logged, for channels which have a log bot
+4.  In the future, statusbot may also keep a user-supplied string and
+    repeat it periodically. This may or may not be useful, but you
+    never know 'till you try <tt>:)</tt>
 
 Commands
 --------
@@ -27,7 +29,8 @@ Commands
 Commands may be issued by any voiced or opped user. Commands are 
 addressed to the bot, using it's nick:
 
-    statusbot: listen list
+    <Mike_lifeguard> statusbot: listen list
+         <statusbot> ...
 
 <table style="font-size: 85%;">
 <tr>

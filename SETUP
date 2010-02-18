@@ -18,34 +18,36 @@ Setup
 -----
 
 To set up statusbot, you will need Python (~2.6), [python
-irclib](http://...), and a MySQL server. Set up the database with
-`statusbot-schema.sql` (see instructions below), then copy 
-`config.py.example` to `config.py` and set your authentication details.
+irclib](http://pypi.python.org/pypi/python-irclib/), and a MySQL server. 
+Set up the database with `statusbot-schema.sql` (see instructions 
+below), then copy  `config.py.example` to `config.py` and set your 
+authentication details.
 
 ### Setting up the MySQL database ###
 
-`statusbot.sql` will create the database structure for you, and
-nothing else. You will need to insert your own data (either inserting
-to the database directly, or using statusbot commands). If you're doing
-this for Wikimedia Foundation projects, then `statusbot-data-wmf.sql`
-will drop and re-create the database, and insert data that hopefully
-makes sense.
+`statusbot.sql` will create the database structure for you, and nothing 
+else. You will need to insert your own data (either inserting to the 
+database directly, or using statusbot commands). If you're doing this 
+for Wikimedia Foundation projects, then `statusbot-data-wmf.sql` will 
+drop and re-create the database, and insert data that hopefully makes 
+sense.
 
 Running statusbot
 -----------------
 
 To actually run the bot, try something like:
 
-    mikelifeguard@arbour:~/statusbot$ screen -d -m python statusbot.py
+    mikelifeguard@arbour:~/statusbot$ screen -d -m -S statusbot python statusbot.py
 
-You may have another solution for long-running background process on
+You may have another solution for long-running background process on 
 your system.
 
 To-do
 -----
 
-There is still work to be done, and you can help. The SVN repository is
-[public](http://...)
+There is still work to be done, and you can help. The 
+[git](http://git-scm.com) repository is 
+[public](http://github.com/mikelifeguard/statusbot).
 
 1.  As mentioned above, setting an arbitrary string and repeating it is
     not yet working. The infrastructure is (mostly?) there, but it
@@ -58,6 +60,3 @@ There is still work to be done, and you can help. The SVN repository is
 4.  Add support for multiple report channels.
 5.  Grab updates from a site like [wikistatus](http://ezyang.com/wikistatus/)
     and report that information to IRC, or vice versa.
-
-If you want to help with development, the source code is available from
-[SVN](https://fisheye.toolserver.org/changelog/lifeguard).
