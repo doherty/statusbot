@@ -1,0 +1,88 @@
+Using Statusbot
+===============
+
+Introduction
+------------
+
+**This IRC bot assists with the operation of [`#wikimedia-status`](wikimedia-status)** ([direct link](irc://irc.freenode.net/wikimedia-status), [webchat](http://webchat.freenode.net/?channels=wikimedia-status)), an IRC channel *exclusively* for status updates about Wikimedia websites.
+
+Statusbot is a simple python IRC bot which aims to achieve rapid dissemination of status information into a destination channel. That information can come from several sources:
+
+1.  `/topic` changes in source channel(s)
+2.  `!log` messages in source channel(s)
+3.  `!status` messages in source channel(s) - this exists as an alternative to `!log` so users may have statusbot repeat something without it being logged, for channels which have a log bot
+4.  In the future, statusbot may also keep a user-supplied string and repeat it periodically. This may or may not be useful, but you never know 'till you try <tt>:)</tt>
+
+Commands
+--------
+
+Commands may be issued by any voiced or opped user. Commands are addressed to the bot, using it's nick:
+
+    <Mike_lifeguard> statusbot: listen list
+         <statusbot> ...
+
+<table style="font-size: 85%;">
+<tr>
+<th>Command</th><th>Description</th><th>Example</th>
+</tr>
+
+<tr>
+<td>statusbot: test</td><td>Test if the bot is alive</td><td><code>statusbot: test</code></td>
+</tr>
+
+<tr>
+<td>statusbot: listen list</td><td>List the channels statusbot listens in</td><td><code>statusbot: listen list</code></td>
+</tr>
+
+<tr>
+<td>statusbot: listen (add|remove) [#channel]</td><td>Add or remove a channel statusbot listens in </td><td><code>statusbot: listen add #wikimedia-tech</code></td>
+</tr>
+</table>
+
+### Restricted commands ###
+
+The `die` command is further restricted to ops.
+
+    <Mike_lifeguard> statusbot: die
+    <Mike_lifeguard> statusbot: die Here's a witty quitmsg
+
+Setting up Statusbot
+====================
+
+Statusbot is a simple python IRC bot which aims to achieve rapid dissemination of status information into a destination channel. That information can come from several sources:
+
+1.  `/topic` changes in source channel(s)
+2.  `!log` messages in source channel(s)
+3.  `!status` messages in source channel(s) - this exists as an alternative to `!log` so users may have statusbot repeat something without it being logged, for channels which have a log bot
+4.  In the future, statusbot may also keep a user-supplied string and repeat it periodically. This may or may not be useful, but you never know 'till you try <tt>:)</tt>
+
+Setup
+-----
+
+To set up statusbot, you will need Python (~2.6), [python irclib](http://pypi.python.org/pypi/python-irclib/), and a MySQL server. Set up the database with `statusbot-schema.sql` (see instructions below), then copy `config.py.example` to `config.py` and set your authentication details.
+
+### Setting up the MySQL database ###
+
+`statusbot.sql` will create the database structure for you, and nothing else. You will need to insert your own data (either inserting to the database directly, or using statusbot commands). If you're doing this for Wikimedia Foundation projects, then `statusbot-data-wmf.sql` will drop and re-create the database, and insert data that hopefully makes sense.
+
+Running statusbot
+-----------------
+
+To actually run the bot, try something like:
+
+    mikelifeguard@arbour:~/statusbot$ screen -d -m -S statusbot python statusbot.py
+
+You may have another solution for long-running background process on your system.
+
+To-do
+-----
+
+There is still work to be done, and you can help. The [git](http://git-scm.com) repository is [public](http://github.com/mikelifeguard/statusbot).
+
+1.  As mentioned above, setting an arbitrary string and repeating it is not yet working. The infrastructure is (mostly?) there, but it hasn't been tested or debugged. Perhaps it needs to be rewritten in a more sensible way.
+2.  Mention *who* changed the topic.
+3.  Figure out if we want to mention other (listen) channels in the main (report) channel or not & then do that. Currently we have half-and-half.
+4.  Add support for multiple report channels.
+5.  Grab updates from a site like [wikistatus](http://ezyang.com/wikistatus/) and report that information to IRC, or vice versa.
+6.  Add support for blacklisted users, in case of abuse. Maybe. They should probably just be banned from the channel instead.
+
