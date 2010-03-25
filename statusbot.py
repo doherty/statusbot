@@ -5,10 +5,8 @@
 # License: GPL
 
 import MySQLdb
-import os
 import random
 import re
-import string
 import sys
 import time
 
@@ -18,7 +16,6 @@ import config
 
 # Needs python-irclib
 from ircbot import SingleServerIRCBot
-from irclib import nm_to_n
 
 # DB data
 SQLuser=config.dbuser
@@ -41,7 +38,7 @@ def query(sqlquery, one=True):
     """
     Run a query that just gets data from the database.
 
-    If you're using more than one column, set call this with one=False.
+    If you're using more than one column, call this with one=False.
 
     """
     db = MySQLdb.connect(db=SQLdb, host=SQLhost,
@@ -104,7 +101,6 @@ class FreenodeBot(SingleServerIRCBot):
         Called when some kind of IRC error happens.
 
         WTF does that mean?!
-
         """
         print e.target()
         self.die()
@@ -114,30 +110,25 @@ class FreenodeBot(SingleServerIRCBot):
         Called when the server tells us our nick is already in use.
 
         We attempt to ghost the nick and acquire it.
-
         """
-        # Probably unnecessary, since sending a server password will
-        # log us in regardless whether we have our main nick or not.
+        print "Nick %s is in use, trying to acquire it..." % self.nickname
         c.nick(c.get_nickname() + "_")
-        time.sleep(2) # latency problem?
-        c.privmsg("NickServ","GHOST %s %s" % (self.nickname, self.password))
+        c.privmsg("NickServ", "GHOST %s %s" % (self.nickname, self.password))
         c.nick(self.nickname)
-        time.sleep(2) # latency problem?
-        c.privmsg("NickServ","IDENTIFY %s" % self.password)
+        print "Acquired nick %s; identifying..." % self.nickname
+        c.privmsg("NickServ", "IDENTIFY %s" % self.password)
 
     def on_welcome(self, c, e):
         """
         Called when the server welcomes us after successfully connecting.
 
         We log the fact, and identify to nickserv.
-
         """
-        print "Connected to server successfully"
-        # Probably unnecessary, since sending a server password will
-        # log us in regardless whether we have our main nick or not.
-        c.privmsg("NickServ",'IDENTIFY %s' % self.password)
-        time.sleep(4) # Let identification succeed before joining channels
+        print "Identifying to services..."
+        c.privmsg("NickServ", "IDENTIFY %s" % self.password)
+        time.sleep(5) # Let identification succeed before joining channels
         c.join(self.channel)
+        print "Joined %s" % self.channel
         if self.listen and self.listenchannels:
             for chan in self.listenchannels:
                 c.join(chan)
@@ -150,18 +141,15 @@ class FreenodeBot(SingleServerIRCBot):
          * VERSION, with a short string describing the bot
          * PING, if a timestamp is provided (the server requires it)
          * SOURCE, with a URL to documentation for the bot
-
         """
         if e.arguments()[0] == "VERSION":
-            c.ctcp_reply(nm_to_n(e.source()),
-                         "Bot for providing status information on %s"
-                         % self.channel)
+            c.ctcp_reply(self.getNick(e.source()), "Bot for providing status "
+                    "information on " + self.channel)
         elif e.arguments()[0] == "PING":
             if len(e.arguments()) > 1:
-                c.ctcp_reply(nm_to_n(e.source()),
-                             "PING %s" % e.arguments()[1])
+                c.ctcp_reply(self.getNick(e.source()), "PING " + e.arguments()[1])
         elif e.arguments()[0] == "SOURCE":
-            c.ctcp_reply(nm_to_n(e.source()), self.docurl)
+            c.ctcp_reply(self.getNick(e.source()), self.docurl)
 
     def on_privmsg(self, c, e):
         """
@@ -171,11 +159,10 @@ class FreenodeBot(SingleServerIRCBot):
         are only passed along to do_command if the user is voiced
         or opped in the main channel. Replies are sent back to
         the user by PM.
-
         """
         timestamp = time.strftime('%d.%m.%Y %H:%M:%S',
                                   time.localtime(time.time()))
-        nick = nm_to_n(e.source())
+        nick = self.getNick(e.source())
         target = nick # If they did the command in PM, keep replies in PM
         text = e.arguments()[0]
         a = text.split(':', 1)
@@ -188,14 +175,15 @@ class FreenodeBot(SingleServerIRCBot):
                          or self.channels[self.channel].is_oper(nick):
                     try:
                         self.do_command(e, command, target)
-                    except CommanderError, e:
-                        print 'CommanderError: %s' % e.value
-                        self.msg('\x0305Error:\x0F %s. '
-                                 'See \x0302%s\x0F for the proper syntax'
-                                 % (e.value, self.docurl), nick)
+                    except CommanderError, exception:
+                        print "CommanderError('%s')" % exception.value
+                        self.msg("\x0305Error:\x0F %s. "
+                                 "See \x0302%s\x0F for the proper syntax"
+                                 % (e.value, self.docurl), target)
                     except:
-                        print 'Error: %s' % sys.exc_info()[1]
-                        raise # Re-raise the last exception
+                        exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
+                        traceback.print_exception(exceptionType, exceptionValue, exceptionTraceback)
+                        raise
                 elif command == 'test': # Safe-ish to let them do this
                     self.do_command(e, command, target)
                 elif command == 'help': # Safe-ish to let them do this
@@ -214,12 +202,11 @@ class FreenodeBot(SingleServerIRCBot):
         the user in the channel, with some exceptions:
          * help is replied to in PM
          * ??
-
         """
         #self.randmess() # Maybe we'll send a message, maybe we won't...
         timestamp = time.strftime('%d.%m.%Y %H:%M:%S',
                                   time.localtime(time.time()))
-        nick = nm_to_n(e.source())
+        nick = self.getNick(e.source())
         # If they issued the command in a channel,
         # replies should go to the channel
         target = e.target()
@@ -234,18 +221,14 @@ class FreenodeBot(SingleServerIRCBot):
                          or self.channels[self.channel].is_oper(nick):
                     try:
                         self.do_command(e, command, target)
-                    except CommanderError, e:
-                        print 'CommanderError: %s' % e.value
-                        self.msg('\x0305Error:\x0F %s. '
-                                 'See \x0302%s\x0F for the proper syntax'
-                                 % (e.value, self.docurl), nick)
-                    # This bare except causes problems when a
-                    # ServerNotConnectedError is raised :\
-                    # Not quite sure what to do here...
+                    except CommanderError, exception:
+                        print "CommanderError('%s')" % exception.value
+                        self.msg("\x0305Error:\x0F %s. "
+                                 "See \x0302%s\x0F for the proper syntax"
+                                 % (e.value, self.docurl), target)
                     except:
-                        print 'Error: %s' % sys.exc_info()[1]
-                        self.msg('Unknown internal error: %s'
-                                 % sys.exc_info()[1], target)
+                        exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
+                        traceback.print_exception(exceptionType, exceptionValue, exceptionTraceback)
                         raise
                 elif command == 'test': # Safe-ish to let them do this
                     self.do_command(e, command, target)
@@ -260,7 +243,7 @@ class FreenodeBot(SingleServerIRCBot):
             if self.startswitharray(text.lower(), ["!log", "!status"]):
                 channel = e.target()
                 if channel != self.channel:
-                    nick = nm_to_n(e.source())
+                    nick = self.getNick(e.source())
                     text = re.sub("^(!log|!status)", "", text).strip()
                     if nick in self.proxynicks: # Make it clearer who did what
                         nick = text.split(" ", 1)[0].strip()
@@ -279,11 +262,10 @@ class FreenodeBot(SingleServerIRCBot):
         We log the fact, and pass it along to the main channel, unless
         it happened in the main channel (in which case repeating that
         is just spammy).
-
         """
         timestamp = time.strftime('%d.%m.%Y %H:%M:%S',
                                   time.localtime(time.time()))
-        nick = nm_to_n(e.source())
+        nick = self.getNick(e.source())
         channel = e.target()
         if channel != self.channel:
             topic = e.arguments()[0]
@@ -301,10 +283,9 @@ class FreenodeBot(SingleServerIRCBot):
 
         The die command is implemented in this method, and not in its
         own do_die method.
-
         """
         print "do_command(self, e, %s, %s)" % (cmd, target)
-        nick = nm_to_n(e.source())
+        nick = self.getNick(e.source())
         if not target:
             target = self.channel
         c = self.connection
@@ -369,17 +350,11 @@ class FreenodeBot(SingleServerIRCBot):
             if self.channels[self.channel].is_oper(nick):
                 text = cmd.split("die", 1)[1].strip()
                 if not text:
-                    quitmsg = "Goodbye, cruel world!"
+                    self.quit()
+                    self.die()
                 else:
-                    quitmsg = text
-                c.part(self.channel, ":" + quitmsg)
-                if self.listen:
-                    for chan in self.listenchannels:
-                        self.connection.part(chan, ":" + quitmsg)
-                self.connection.quit(":" + quitmsg)
-                self.disconnect()
-                c.quit()
-                self.disconnect()
+                    self.quit(text)
+                    self.die(text)
                 # Exit from Python. This is implemented by raising the
                 # SystemExit exception, so cleanup actions specified by
                 # 'finally' clauses of try statements are honoured, and
@@ -419,7 +394,7 @@ class FreenodeBot(SingleServerIRCBot):
                              'l_channel="%s"' % channel)) > 0:
                     if not self.quiet:
                         self.msg("%s is already in the list of 'listen' "
-                                 "channels!" % who, target)
+                                 "channels!" % channel, target)
                 else:
                     modquery('insert into listen values (0, "%s")' % channel)
                     # Update the list of listen channels
@@ -475,7 +450,7 @@ class FreenodeBot(SingleServerIRCBot):
                     modquery('update listen set l_channel = "%s" where '
                              'l_channel = "%s"' % (chan2, chan1))
                     # update the list of listen channels
-                    self.stalked = query(queries["listenchannels"])
+                    self.listenchannels = query(queries["listenchannels"])
                     if not self.quiet:
                         self.msg("Changed the name of %s in the list of "
                                  "'listen' channels!" % chan1, target)
@@ -663,11 +638,46 @@ class FreenodeBot(SingleServerIRCBot):
 
         Target determines whether the message is sent to a channel
         or a user (by PM). If not given, this defaults to self.channel.
-
         """
         if not target:
             target = self.channel
         self.connection.privmsg(target, msg)
+
+    def getCloak(self, mask):
+        """
+        Parse a hostmask, extracting the cloak part:
+
+        nick!~user@host.com -> host.com
+        """
+        #print "getCloak(self, '%s')" % mask
+        if "@" in mask:
+            return mask.split("@")[1]
+        else:
+            raise ParseHostMaskError("Hostmask %s seems invalid." % mask)
+
+    def getUser(self, mask):
+        """
+        Parse a hostmask, extracting the user part:
+
+        nick!~user@host.com -> ~user
+        """
+        #print "getUser(self, '%s')" % mask
+        if "!" in mask and "@" in mask:
+            return mask.split("!")[1].split("@")[0]
+        else:
+            raise ParseHostMaskError("Hostmask %s seems invalid." % mask)
+
+    def getNick(self, mask):
+        """
+        Parse a hostmask, extracting the nick part:
+
+        nick!~user@host.com -> nick
+        """
+        #print "getNick(self, '%s')" % mask
+        if "!" in mask:
+            return mask.split("!")[0]
+        else:
+            raise ParseHostMaskError("Hostmask %s seems invalid." % mask)
 
     def startswitharray(self, a, l):
         """
