@@ -149,7 +149,8 @@ class FreenodeBot(SingleServerIRCBot):
             if len(e.arguments()) > 1:
                 c.ctcp_reply(self.getNick(e.source()), "PING " + e.arguments()[1])
         elif e.arguments()[0] == "SOURCE":
-            c.ctcp_reply(self.getNick(e.source()), self.docurl)
+            c.ctcp_reply(self.getNick(e.source()),
+                    "git://hashbang.ca/statusbot")
 
     def on_privmsg(self, c, e):
         """

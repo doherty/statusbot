@@ -70,17 +70,17 @@ Running statusbot
 
 To actually run the bot, try something like:
 
-    mikelifeguard@arbour:~/statusbot$ screen -d -m -S statusbot python statusbot.py
+    mikelifeguard@arbour:~/statusbot$ screen -dmS statusbot python statusbot.py
 
 You may have another solution for long-running background process on your system.
 
 To-do
 -----
 
-There is still work to be done, and you can help. The [git](http://git-scm.com) repository is [public](http://github.com/mikelifeguard/statusbot).
+There is still work to be done, and you can help. The [git](http://git-scm.com) repository is [public](http://hashbang.ca/gitweb/statusbot).
 
 1.  As mentioned above, setting an arbitrary string and repeating it is not yet working. The infrastructure is (mostly?) there, but it hasn't been tested or debugged. Perhaps it needs to be rewritten in a more sensible way.
-2.  Mention *who* changed the topic.
+2.  Mention *who* changed the topic. Or maybe not.
 3.  Figure out if we want to mention other (listen) channels in the main (report) channel or not & then do that. Currently we have half-and-half.
 4.  Add support for multiple report channels.
 5.  Grab updates from a site like [wikistatus](http://ezyang.com/wikistatus/) and report that information to IRC, or vice versa.
