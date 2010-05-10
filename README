@@ -77,7 +77,7 @@ You may have another solution for long-running background process on your system
 To-do
 -----
 
-There is still work to be done, and you can help. The [git](http://git-scm.com) repository is [public](http://hashbang.ca/gitweb/statusbot).
+There is still work to be done, and you can help. The [git](http://git-scm.com) repository is [public](http://git.hashbang.ca/gitweb/statusbot).
 
 1.  As mentioned above, setting an arbitrary string and repeating it is not yet working. The infrastructure is (mostly?) there, but it hasn't been tested or debugged. Perhaps it needs to be rewritten in a more sensible way.
 2.  Mention *who* changed the topic. Or maybe not.
