@@ -146,7 +146,7 @@ class FreenodeBot(SingleServerIRCBot):
         """
         if e.arguments()[0] == "VERSION":
             c.ctcp_reply(self.getNick(e.source()), "Bot for providing status "
-                    "information on " + self.channel)
+                    "information on %s - see %s" % (self.channel, self.docurl))
         elif e.arguments()[0] == "PING":
             if len(e.arguments()) > 1:
                 c.ctcp_reply(self.getNick(e.source()), "PING " + e.arguments()[1])
@@ -207,7 +207,7 @@ class FreenodeBot(SingleServerIRCBot):
          * ??
         """
         #self.randmess() # Maybe we'll send a message, maybe we won't...
-        timestamp = time.strftime('%d.%m.%Y %H:%M:%S',
+        timestamp = time.strftime('%d/%m/%Y %H:%M:%S',
                                   time.localtime(time.time()))
         nick = self.getNick(e.source())
         # If they issued the command in a channel,
@@ -266,7 +266,7 @@ class FreenodeBot(SingleServerIRCBot):
         it happened in the main channel (in which case repeating that
         is just spammy).
         """
-        timestamp = time.strftime('%d.%m.%Y %H:%M:%S',
+        timestamp = time.strftime('%d/%m/%Y %H:%M:%S',
                                   time.localtime(time.time()))
         nick = self.getNick(e.source())
         channel = e.target()
