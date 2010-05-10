@@ -102,7 +102,9 @@ class FreenodeBot(SingleServerIRCBot):
 
         WTF does that mean?!
         """
+        print "on_error(self, c, e)"
         print e.target()
+        print e.arguments()
         self.die()
 
     def on_nicknameinuse(self, c, e):
@@ -116,7 +118,7 @@ class FreenodeBot(SingleServerIRCBot):
         c.privmsg("NickServ", "GHOST %s %s" % (self.nickname, self.password))
         c.nick(self.nickname)
         print "Acquired nick %s; identifying..." % self.nickname
-        c.privmsg("NickServ", "IDENTIFY %s" % self.password)
+        c.privmsg("NickServ", "IDENTIFY " + self.password)
 
     def on_welcome(self, c, e):
         """
@@ -125,10 +127,10 @@ class FreenodeBot(SingleServerIRCBot):
         We log the fact, and identify to nickserv.
         """
         print "Identifying to services..."
-        c.privmsg("NickServ", "IDENTIFY %s" % self.password)
+        c.privmsg("NickServ", "IDENTIFY " + self.password)
         time.sleep(5) # Let identification succeed before joining channels
         c.join(self.channel)
-        print "Joined %s" % self.channel
+        print "Joined " + self.channel
         if self.listen and self.listenchannels:
             for chan in self.listenchannels:
                 c.join(chan)
@@ -150,7 +152,7 @@ class FreenodeBot(SingleServerIRCBot):
                 c.ctcp_reply(self.getNick(e.source()), "PING " + e.arguments()[1])
         elif e.arguments()[0] == "SOURCE":
             c.ctcp_reply(self.getNick(e.source()),
-                    "git://hashbang.ca/statusbot")
+                    "git://git.hashbang.ca/statusbot")
 
     def on_privmsg(self, c, e):
         """
