@@ -163,37 +163,37 @@ class FreenodeBot(SingleServerIRCBot):
         or opped in the main channel. Replies are sent back to
         the user by PM.
         """
-        timestamp = time.strftime('%d.%m.%Y %H:%M:%S',
+        timestamp = time.strftime('%d/%m/%Y %H:%M:%S',
                                   time.localtime(time.time()))
         nick = self.getNick(e.source())
         target = nick # If they did the command in PM, keep replies in PM
         text = e.arguments()[0]
+        print "[%s] <%s/%s> %s" % (timestamp, "PM", nick, text)
         a = text.split(':', 1)
-        print "[%s] <%s/%s> %s" % (timestamp, "PM", nick, a)
         if a[0] == self.nickname:
-            if len(a) == 2:
-                # Now we don't need to .lower() everywhere else
-                command = a[1].strip().lower()
-                if self.channels[self.channel].is_voiced(nick) \
-                         or self.channels[self.channel].is_oper(nick):
-                    try:
-                        self.do_command(e, command, target)
-                    except CommanderError, exception:
-                        print "CommanderError('%s')" % exception.value
-                        self.msg("\x0305Error:\x0F %s. "
-                                 "See \x0302%s\x0F for the proper syntax"
-                                 % (e.value, self.docurl), target)
-                    except:
-                        exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
-                        traceback.print_exception(exceptionType, exceptionValue, exceptionTraceback)
-                        raise
-                elif command == 'test': # Safe-ish to let them do this
-                    self.do_command(e, command, target)
-                elif command == 'help': # Safe-ish to let them do this
-                    self.do_command(e, command, target)
-                else:
-                    self.msg('Sorry, you need to be voiced in %s'
-                             'to give the bot commands.' % self.channel, nick)
+            command = a[1].strip().lower()
+        else:
+            command = text.strip().lower()
+        if self.channels[self.channel].is_voiced(nick) \
+                or self.channels[self.channel].is_oper(nick):
+            try:
+                self.do_command(e, command, target)
+            except CommanderError, exception:
+                print "CommanderError('%s')" % exception.value
+                self.msg("\x0305Error:\x0F %s. "
+                        "See \x0302%s\x0F for the proper syntax"
+                        % (e.value, self.docurl), target)
+            except:
+                exceptionType, exceptionValue, exceptionTraceback = sys.exc_info()
+                traceback.print_exception(exceptionType, exceptionValue, exceptionTraceback)
+                raise
+        elif command == 'test': # Safe-ish to let them do this
+            self.do_command(e, command, target)
+        elif command == 'help': # Safe-ish to let them do this
+            self.do_command(e, command, target)
+        else:
+            self.msg('Sorry, you need to be voiced in %s'
+                    'to give the bot commands.' % self.channel, nick)
 
     def on_pubmsg(self, c, e):
         """
