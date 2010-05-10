@@ -743,9 +743,14 @@ if __name__ == "__main__":
     global bot
     try:
         main()
-    except IOError:
+    except IOError: # Should be moved to where IOError actually comes from for clarity
         print ("No config file. You should start this script from "
                          "its directory like 'python statusbot.py'")
+    except ServerNotConnectedError:
+        timestamp = time.strftime('%d/%m/%Y %H:%M:%S',
+                                  time.localtime(time.time()))
+        print "[%s] Server not connected - attempt to reconnect" % timestamp
+        main() # Yes, this might cause an infinite loop...
     except:
         # Re-raise the last exception that brought us
         # here. Without it, this bare except would be evul.
